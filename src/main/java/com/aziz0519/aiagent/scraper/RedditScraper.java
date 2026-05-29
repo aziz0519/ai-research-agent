@@ -20,6 +20,10 @@ import jakarta.persistence.Entity;
 
 import java.time.LocalDateTime;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.util.ArrayList;
+
+
 
 @Component
 @Slf4j
@@ -36,14 +40,14 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
                             final ObjectMapper objectMapper
     ) {
         super(proxyConfig);
-        this.postRepository = postRepository;
+        this.scrapedPostRepository = scrapedPostRepository;
         this.objectMapper = objectMapper;
     }
 
-    @Value('${scraping.reddit.subreddits}')
+    @Value("${scraping.reddit.subreddits}")
     private List<String> subreddits;
 
-    @Value('${scraping.reddit.postsPerSubreddit}')
+    @Value("${scraping.reddit.postsPerSubreddit}")
     private int postsPerSubreddit = 10;
 
     @Override
@@ -52,7 +56,7 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
     }
 
     @Override
-    public List<ScrapedPost> scrape() {
+    public List<ScrapedPost> scraped() {
     
         // Implementation for scraping Reddit posts
         final List<ScrapedPost> posts = new ArrayList<>();
@@ -76,13 +80,13 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
                 for (final JsonNode child : children) {
                     final JsonNode data = child.path("data");
 
-                    final String exeternaId = data.path("id").asText();
+                    final String externalId = data.path("id").asText();
                     
                     if (externalId.isBlank()) {
                         continue;
                     }
 
-                    if (this.postRepository.existsByExternalIdAndPlatform(getPlatform(), externalId)) {
+                    if (this.scrapedPostRepository.existsByExternalIdAndPlatform(getPlatform(), externalId)) {
                         continue;
                     }
 
@@ -95,10 +99,40 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
                             .asText(defaultValue: "")
                             .trim();
                     
-                    final String content = selftext.isBlank() ? title.substring(0, Math.min(title.length(), 200)) : selftext;
-                    final double postedAtEpoch = data.path("created_utc").asDouble(0);
+                    final String content = selftext.isBlank() 
+                        ? title.substring(0, Math.min(title.length(), 500)) 
+                        : selftext;
 
-                    final LocalDateTime postedAt = data.has("created_utc") ? LocalDateTime.ofInstant(Instant.ofEpochSecond(data.path("created_utc").asLong()), ZoneId.systemDefault()) : LocalDateTime.now();
+                    final long postedAtEpoch = (long) data.path("created_utc")
+                    .asDouble();
+
+                    final LocalDateTime postedAt = data.has("created_utc") 
+                        ? LocalDateTime.ofInstant(
+                        Instant.ofEpochSecond(postedAtEpoch), 
+                        ZoneId.systemDefault()) 
+                        : null;
+
+                    final String redditUrl = data.path("url").asText(defaultValue: "null");
+                    final String author = data.path("author").asText(defaultValue: "null");
+                    final int score = data.path("score").asInt(0);
+                    final int commentCount = data.path("num_comments").asInt(0);
+                    final String subredditName = data.path("subreddit").asText(subreddit);
+
+                    final ScrapedPost posts = ScrapedPost.builder()
+                            .externalId(externalId)
+                            .platform(getPlatform())
+                            .title(title)
+                            .content(content)
+                            .postedAt(postedAt)
+                            .url(redditUrl)
+                            .author(author)
+                            .score(score)
+                            .commentCount(commentCount)
+                            .subreddit(subredditName)
+                            .proxyIpUsed(proxyIp)
+                            .build();
+
+                    posts.add();
 
                 } catch (final Exception e) {
 
