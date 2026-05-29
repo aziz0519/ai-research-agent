@@ -24,3 +24,17 @@ proxy:
   username: proxyuser
   password: proxypass
   userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+
+# Scraping config
+scraping:
+  cron: "0 0 */3 * * *" # Every 3 hours
+  reddit:
+    subreddits:
+      - "technology"
+      - "science"
+      - "machinelearning"
+    posts-per-subreddit: 25
+  hackernews:
+    top-stories-count: 30
+  producthunt:
+    posts-count: 20

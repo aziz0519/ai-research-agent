@@ -2,8 +2,8 @@ package com.aziz0519.aiagent.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.aziz0519.aiagent.model.ScrapePost;
+import com.aziz0519.aiagent.model.ScrapedPost;
 
-public interface ScrapePostRepository extends JpaRepository<ScrapePost, Long> {
+public interface ScrapePostRepository extends JpaRepository<ScrapedPost, Long> {
 
 }
