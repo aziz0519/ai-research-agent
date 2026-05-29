@@ -25,7 +25,7 @@ import lombok.Setter;
 @Table(name = "scraped_posts", uniqueConstraints = {
     @jakarta.persistence.UniqueConstraint(columnNames = {"platform", "externalId"})
 })
-public class ScrapePost {
+public class ScrapedPost {
 
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
