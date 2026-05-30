@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.aziz0519.aiagent.model.ScrapedPost;
 
-public interface ScrapePostRepository extends JpaRepository<ScrapedPost, Long> {
+public interface ScrapedPostRepository extends JpaRepository<ScrapedPost, Long> {
 
 }

@@ -9,6 +9,7 @@ import com.aziz0519.aiagent.model.Platform;
 import com.aziz0519.aiagent.model.ScrapedPost;
 
 import lombok.Builder;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 @Component
 @Slf4j
 @Setter
-@Builder
+@Getter
 @Entity
 public class RedditScraper extends AbstractScraper implements PlatformScraper {
 
@@ -48,7 +49,7 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
     private List<String> subreddits;
 
     @Value("${scraping.reddit.postsPerSubreddit}")
-    private int postsPerSubreddit = 10;
+    private int postsPerSubreddit;
 
     @Override
     public Platform getPlatform() {
@@ -56,7 +57,7 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
     }
 
     @Override
-    public List<ScrapedPost> scraped() {
+    public List<ScrapedPost> scrape() {
     
         // Implementation for scraping Reddit posts
         final List<ScrapedPost> posts = new ArrayList<>();
@@ -112,13 +113,16 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
                         ZoneId.systemDefault()) 
                         : null;
 
-                    final String redditUrl = data.path("url").asText(defaultValue: "null");
-                    final String author = data.path("author").asText(defaultValue: "null");
-                    final int score = data.path("score").asInt(0);
+                    final String redditUrl = data.path("url")
+                        .asText(defaultValue: "null");
+                    final String author = data.path("author")
+                        .asText(defaultValue: "null");
+                    final int score = data.path("score")
+                        .asInt(0);
                     final int commentCount = data.path("num_comments").asInt(0);
                     final String subredditName = data.path("subreddit").asText(subreddit);
 
-                    final ScrapedPost posts = ScrapedPost.builder()
+                    final ScrapedPost post = ScrapedPost.builder()
                             .externalId(externalId)
                             .platform(getPlatform())
                             .title(title)
@@ -128,20 +132,31 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
                             .author(author)
                             .score(score)
                             .commentCount(commentCount)
-                            .subreddit(subredditName)
+                            .subReddit(subredditName)
                             .proxyIpUsed(proxyIp)
                             .build();
 
-                    posts.add();
+                    posts.add(post);
+
+                }
+                log.info("Reddit r/{} scraped: {} new posts", subreddit, posts.size());
+
+                Thread.sleep(500);
+
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
 
                 } catch (final Exception e) {
+                    log.error("Failed to scrape r/{}", subreddit, e.getMessage());
+
 
                 }
             
         }
 
 
-        return List.of();
+        return posts;
         
     }
     
