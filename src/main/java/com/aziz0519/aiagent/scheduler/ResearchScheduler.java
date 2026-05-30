@@ -24,14 +24,20 @@ import com.aziz0519.aiagent.model.ScrapedPost;
 @Slf4j
 public class ResearchScheduler {
 
-    private final AbstractScraper abstractScraper;
+    //private final AbstractScraper abstractScraper;
     private final ScrapingOrchestrator scrapingOrchestrator;
     private final ScrapedPostRepository postRepository;
     private final LlmAnalysisService analysisService;
 
 
-    ResearchScheduler(AbstractScraper abstractScraper) {
-        this.abstractScraper = abstractScraper;
+    public ResearchScheduler(AbstractScraper abstractScraper,
+                      ScrapingOrchestrator scrapingOrchestrator,
+                      ScrapedPostRepository postRepository,
+                      LlmAnalysisService analysisService) {
+        //this.abstractScraper = abstractScraper;
+        this.scrapingOrchestrator = scrapingOrchestrator;
+        this.postRepository = postRepository;
+        this.analysisService = analysisService;
     }
 
 

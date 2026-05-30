@@ -24,7 +24,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 
+
 import com.aziz0519.aiagent.repository.ScrapedPostRepository;
+
 
 
 
@@ -93,13 +95,13 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
                         continue;
                     }
 
-                    final String title = data.path("title").asText(defaultValue: "");
+                    final String title = data.path("title").asText("");
                     if (title.isBlank()) {
                         continue;
                     }
 
                     final String selftext = data.path("selftext")
-                            .asText(defaultValue:"null")
+                            .asText("null")
                             .trim();
                     
                     final String content = selftext.isBlank() 
@@ -115,9 +117,9 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
                         ZoneId.systemDefault()) 
                         : null;
 
-                    final String redditUrl = data.path("url").asText(defaultValue: "null");
+                    final String redditUrl = data.path("url").asText("null");
 
-                    final String author = data.path("author").asText(defaultValue: "null");
+                    final String author = data.path("author").asText("null");
 
                     final int score = data.path("score").asInt(0);
 
@@ -143,16 +145,14 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
                 }
                 log.info("Reddit r/{} scraped: {} new posts", subreddit, posts.size());
 
-                Thread.sleep(500);
+                Thread.sleep(500); // Sleep to respect Reddit's rate limits
 
-            } catch (final InterruptedException e) {
+            } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
 
                 } catch (final Exception e) {
-                    log.error("Failed to scrape r/{}", subreddit, e.getMessage());
-
-
+                    log.error("Unexpected error while scraping r/{}", subreddit, e.getMessage());
                 }
             
         }

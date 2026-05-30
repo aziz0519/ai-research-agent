@@ -7,14 +7,16 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.aziz0519.aiagent.model.ScrapedPost;
 import java.util.List;
+import com.aziz0519.aiagent.model.TrendAnalysis;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class LlmAnalysisService {
 
-    public void analyze(List<ScrapedPost> posts) {
-        // Placeholder for LLM analysis logic
+    public TrendAnalysis analyze(final List<ScrapedPost> posts) {
+        return null;
+    
     };
 
 }
