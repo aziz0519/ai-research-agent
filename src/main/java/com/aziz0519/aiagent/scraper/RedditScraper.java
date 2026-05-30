@@ -8,7 +8,7 @@ import com.aziz0519.aiagent.config.ProxyConfig;
 import com.aziz0519.aiagent.model.Platform;
 import com.aziz0519.aiagent.model.ScrapedPost;
 
-import lombok.Builder;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +23,8 @@ import java.time.LocalDateTime;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+
+import com.aziz0519.aiagent.repository.ScrapedPostRepository;
 
 
 
@@ -87,7 +89,7 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
                         continue;
                     }
 
-                    if (this.scrapedPostRepository.existsByExternalIdAndPlatform(getPlatform(), externalId)) {
+                    if (this.scrapedPostRepository.existsByExternalIdAndPlatform(externalId, getPlatform())) {
                         continue;
                     }
 
@@ -97,7 +99,7 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
                     }
 
                     final String selftext = data.path("selftext")
-                            .asText(defaultValue: "")
+                            .asText(defaultValue:"null")
                             .trim();
                     
                     final String content = selftext.isBlank() 
@@ -113,12 +115,12 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
                         ZoneId.systemDefault()) 
                         : null;
 
-                    final String redditUrl = data.path("url")
-                        .asText(defaultValue: "null");
-                    final String author = data.path("author")
-                        .asText(defaultValue: "null");
-                    final int score = data.path("score")
-                        .asInt(0);
+                    final String redditUrl = data.path("url").asText(defaultValue: "null");
+
+                    final String author = data.path("author").asText(defaultValue: "null");
+
+                    final int score = data.path("score").asInt(0);
+
                     final int commentCount = data.path("num_comments").asInt(0);
                     final String subredditName = data.path("subreddit").asText(subreddit);
 
