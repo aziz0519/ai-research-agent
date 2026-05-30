@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.aziz0519.aiagent.model.TrendTopic;
+import com.aziz0519.aiagent.model.TrendAnalysis;
+import com.aziz0519.aiagent.model.Platform;
 
 @Service
 @RequiredArgsConstructor
@@ -44,10 +46,14 @@ public class TrendService {
     
     public Map<String, Object> getDashboardStats() {
         return Map.of(
-            "totalTrends", this.trendTopicRepository.count(),
-            "trendsLast24Hours", this.trendTopicRepository.findByDetectedAtAfterOrderByTrendScoreDesc(LocalDateTime.now().minusHours(24)).size(),
             "totalPosts", this.scrapedPostRepository.count(),
-            "analysesConducted", this.trendAnalysisRepository.count()
+            "redditPosts", this.scrapedPostRepository.countByPlatform(Platform.REDDIT),
+            "hnPosts", this.scrapedPostRepository.countByPlatform(Platform.HACKERNEWS),
+            "phPosts", this.scrapedPostRepository.countByPlatform(Platform.PRODUCTHUNT),
+            "totalTrends", this.trendTopicRepository.count(),
+            "lastAnalysis", this.trendAnalysisRepository.findTopByOrderByAnalyzedAtDesc()
+                .map(TrendAnalysis::getAnalyzedAt)
+                .orElse(LocalDateTime.now())
         );
     } 
 
