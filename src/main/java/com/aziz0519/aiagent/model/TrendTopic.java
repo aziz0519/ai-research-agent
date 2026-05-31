@@ -35,7 +35,7 @@ public class TrendTopic {
     private Long id;
 
     @Column(nullable = false, length = 512)
-    private String topics;
+    private String topic;
 
     @Column(columnDefinition = "TEXT")
     private String summary;
