@@ -1,6 +1,6 @@
 package com.aziz0519.aiagent.service;
 
-import com.aziz0519.aiagent.config.OpenAIConfig;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 @Slf4j
 public class LlmAnalysisService {
 
-    private final OpenAIConfig openAIConfig;
+    
 
     private static final String SYSTEM_PROMPT = """
     You are an AI research analyst specialzing in technology trends and startup ideas.
@@ -70,9 +70,7 @@ public class LlmAnalysisService {
     @Value("${openai.model}")
     private String model;
 
-    LlmAnalysisService(OpenAIConfig openAIConfig) {
-        this.openAIConfig = openAIConfig;
-    }
+ 
 
     public TrendAnalysis analyze(final List<ScrapedPost> posts) {
 
@@ -83,9 +81,9 @@ public class LlmAnalysisService {
             try {
                 Map<String, Object> requestBody = Map.of(
                     "model", model,
-                    "messages", List.of(
-                        Map.of("role", "system", "content", SYSTEM_PROMPT),
-                        Map.of("role", "user", "content", userPrompt)
+                    "max_tokens", 4000,
+                    "system", SYSTEM_PROMPT,
+                    "messages", List.of(Map.of("role", "user", "content", userPrompt)
                     )
                 );
                 rawResponse = this.openAIWebClient.post()
@@ -95,7 +93,7 @@ public class LlmAnalysisService {
                     .bodyToMono(String.class)
                     .block();
                 break; // Exit loop if successful
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 log.warn("OpenAI attempt {}/3 failed: {}", attempt, e.getMessage());
                 if (attempt < 3) {
                     try {
@@ -107,7 +105,8 @@ public class LlmAnalysisService {
                 } 
     
             }
-            if (rawResponse == null) {
+        }
+        if (rawResponse == null) {
                 log.error("All OpenAI attempts failed to respond.");
                 rawResponse = "{}";
             }
@@ -120,10 +119,10 @@ public class LlmAnalysisService {
             final List<TrendTopic> topics = parseTopics(rawResponse, analysis);
             this.topicRepository.saveAll(topics);
             log.info("Saved {} trend topics from analysis of {} posts", topics.size(), posts.size());
-        }
+
         return analysis;
     
-    };
+    }
 
     private String buildPrompt(final List<ScrapedPost> posts) {
 
@@ -167,7 +166,7 @@ public class LlmAnalysisService {
             }
             
             final JsonNode trendsArray = this.objectMapper.readTree(content);
-            if (!trendArray.isArray()) {
+            if (!trendsArray.isArray()) {
                 return topics;
 
             }
