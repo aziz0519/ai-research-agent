@@ -1,23 +1,25 @@
 package com.aziz0519.aiagent.controller;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
-
-import com.aziz0519.aiagent.service.ScrapingOrchestrator;
-import com.aziz0519.aiagent.service.LlmAnalysisService; 
-import com.aziz0519.aiagent.repository.ScrapedPostRepository;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.http.ResponseEntity;
-
-import java.util.Map;
-import java.util.List;
 import com.aziz0519.aiagent.model.Platform;
-import com.aziz0519.aiagent.model.TrendAnalysis;
 import com.aziz0519.aiagent.model.ScrapedPost;
-import java.time.LocalDateTime;
+import com.aziz0519.aiagent.model.TrendAnalysis;
+import com.aziz0519.aiagent.repository.ScrapedPostRepository;
+import com.aziz0519.aiagent.service.LlmAnalysisService;
+import com.aziz0519.aiagent.service.ScrapingOrchestrator;
+
+import lombok.RequiredArgsConstructor;
 
 
 
@@ -43,9 +45,30 @@ public class ScrapeController {
         return ResponseEntity.ok(Map.of(
             "scrapeResults", scrapeResults,
             "analyzedPosts", posts.size(),
-            "analysis", analysis
+            "analysisId", analysis != null ? analysis.getId() : "none"
         ));
     }
+
+    @PostMapping("/platform/{platform}")
+    public ResponseEntity<List<ScrapedPost>> scrapePlatform(
+        @PathVariable
+        final Platform platform
+    ) {
+        return ResponseEntity.ok(this.orchestrator.scrapePlatform(platform));
+    }
+
+    @GetMapping("/posts")
+    public ResponseEntity<List<ScrapedPost>> getRecentPosts(
+        @RequestParam(required = false)
+        final Platform platform
+    ) {
+        if (platform != null) {
+            return ResponseEntity.ok(this.postRepository.findByPlatformOrderByScrapedAtDesc(platform));
+        }
+        return ResponseEntity.ok(this.postRepository.findTop200ByOrderByScrapedAtDesc());
+    }
+
+
 
 
 }
