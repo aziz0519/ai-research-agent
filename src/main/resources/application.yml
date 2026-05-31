@@ -25,6 +25,14 @@ proxy:
   password: proxypass
   userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 
+# OpenAI API config
+openai:
+  api-key: ${OPENAI_API_KEY:}
+  model: gpt-4o-mini
+  base-url: https://api.openai.com/v1
+
+
+
 # Scraping config
 scraping:
   cron: "0 0 */3 * * *" # Every 3 hours
