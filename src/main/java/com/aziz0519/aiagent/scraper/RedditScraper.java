@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.persistence.Entity;
+
 
 import java.time.LocalDateTime;
 import java.time.Instant;
@@ -34,7 +34,6 @@ import com.aziz0519.aiagent.repository.ScrapedPostRepository;
 @Slf4j
 @Setter
 @Getter
-@Entity
 public class RedditScraper extends AbstractScraper implements PlatformScraper {
 
     private final ScrapedPostRepository scrapedPostRepository;
