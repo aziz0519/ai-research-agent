@@ -17,6 +17,8 @@ public interface ScrapedPostRepository extends JpaRepository<ScrapedPost, Long> 
 
     List<ScrapedPost> findAllScrapedAtAfterOrderByScoreDesc(LocalDateTime scrapedAt);
 
+    List<ScrapedPost> findByPlatformOrderByScrapedAtDesc(Platform platform);
 
+    List<ScrapedPost> findTop200ByOrderByScrapedAtDesc();
 
 }

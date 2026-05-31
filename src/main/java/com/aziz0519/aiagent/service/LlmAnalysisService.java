@@ -54,12 +54,12 @@ public class LlmAnalysisService {
     ]
     
     Rules:
-    - Identify 5-10 trends maximum
-    - trendScore is 0.0 to 1.0
-    - mentionCount = how many posts in this batch related to this trend
-    - Only include trends mentioned in 2+ posts OR with very high engagement score (score > 200)
-    - Focus on EMERGING trends, not well-established topics
-    - primaryPlatform = where the trend is the strongest
+        - Identify 5-10 trends maximum
+        - trendScore is 0.0 to 1.0
+        - mentionCount = how many posts in this batch related to this trend
+        - Only include trends mentioned in 2+ posts OR with very high engagement score (score > 200)
+        - Focus on EMERGING trends, not well-established topics
+        - primaryPlatform = where the trend is the strongest
     """;
 
     private final WebClient openAIWebClient;
