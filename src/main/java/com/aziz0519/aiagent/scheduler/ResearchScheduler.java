@@ -1,6 +1,6 @@
 package com.aziz0519.aiagent.scheduler;
 
-import com.aziz0519.aiagent.scraper.AbstractScraper;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -24,21 +24,11 @@ import com.aziz0519.aiagent.model.ScrapedPost;
 @Slf4j
 public class ResearchScheduler {
 
-    //private final AbstractScraper abstractScraper;
+
     private final ScrapingOrchestrator scrapingOrchestrator;
     private final ScrapedPostRepository postRepository;
     private final LlmAnalysisService analysisService;
 
-
-    public ResearchScheduler(AbstractScraper abstractScraper,
-                      ScrapingOrchestrator scrapingOrchestrator,
-                      ScrapedPostRepository postRepository,
-                      LlmAnalysisService analysisService) {
-        //this.abstractScraper = abstractScraper;
-        this.scrapingOrchestrator = scrapingOrchestrator;
-        this.postRepository = postRepository;
-        this.analysisService = analysisService;
-    }
 
 
     @Scheduled(cron = "${scraping.cron}") // Every hour
@@ -51,7 +41,7 @@ public class ResearchScheduler {
 
         final LocalDateTime since = LocalDateTime.now().minusHours(6);
 
-        final List<ScrapedPost> recentPosts = this.postRepository.findAllScrapedAtAfterOrderByScoreDesc(since);
+        final List<ScrapedPost> recentPosts = this.postRepository.findAllByScrapedAtAfterOrderByScoreDesc(since);
 
         if (!recentPosts.isEmpty()) {
             this.analysisService.analyze(recentPosts);

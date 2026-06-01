@@ -14,8 +14,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+
 
 
 
@@ -23,6 +23,9 @@ import java.time.LocalDateTime;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+
+import org.json.JSONObject;
+import org.json.JSONArray;
 
 
 import com.aziz0519.aiagent.repository.ScrapedPostRepository;
@@ -37,15 +40,14 @@ import com.aziz0519.aiagent.repository.ScrapedPostRepository;
 public class RedditScraper extends AbstractScraper implements PlatformScraper {
 
     private final ScrapedPostRepository scrapedPostRepository;
-    private final ObjectMapper objectMapper;
+
 
     public RedditScraper(final ProxyConfig proxyConfig,
-                            final ScrapedPostRepository scrapedPostRepository,
-                            final ObjectMapper objectMapper
+                            final ScrapedPostRepository scrapedPostRepository
     ) {
         super(proxyConfig);
         this.scrapedPostRepository = scrapedPostRepository;
-        this.objectMapper = objectMapper;
+
     }
 
     @Value("${scraping.reddit.subreddits}")
@@ -77,14 +79,15 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
 
                 final String proxyIp = detectProxyIp();
 
-                final JsonNode root = this.objectMapper.readTree(json);
+                final JSONObject root = new JSONObject(json);
 
-                final JsonNode children = root.path("data").path("children");
+                final JSONArray children = root.getJSONObject("data").getJSONArray("children");
 
-                for (final JsonNode child : children) {
-                    final JsonNode data = child.path("data");
+                for (int i = 0; i < children.length(); i++) {
+                    JSONObject data = children.getJSONObject(i).getJSONObject("data");
 
-                    final String externalId = data.path("id").asText();
+                    final String externalId = data.optString("id", "");
+  
                     
                     if (externalId.isBlank()) {
                         continue;
@@ -94,36 +97,31 @@ public class RedditScraper extends AbstractScraper implements PlatformScraper {
                         continue;
                     }
 
-                    final String title = data.path("title").asText("");
+                    final String title = data.optString("title", "");
                     if (title.isBlank()) {
                         continue;
                     }
 
-                    final String selftext = data.path("selftext")
-                            .asText("null")
-                            .trim();
+                    final String selftext = data.optString("selftext", "").trim();
                     
                     final String content = selftext.isBlank() 
                         ? title.substring(0, Math.min(title.length(), 500)) 
                         : selftext;
 
-                    final long postedAtEpoch = (long) data.path("created_utc")
-                    .asDouble();
+                    final long postedAtEpoch = data.optLong("created_utc", 0);
 
-                    final LocalDateTime postedAt = data.has("created_utc") 
-                        ? LocalDateTime.ofInstant(
-                        Instant.ofEpochSecond(postedAtEpoch), 
-                        ZoneId.systemDefault()) 
+                    final LocalDateTime postedAt = postedAtEpoch > 0
+                        ? LocalDateTime.ofInstant(Instant.ofEpochSecond(postedAtEpoch), ZoneId.systemDefault())
                         : null;
 
-                    final String redditUrl = data.path("url").asText("null");
+                    final String redditUrl = data.optString("url", "");
 
-                    final String author = data.path("author").asText("null");
+                    final String author = data.optString("author", "");
 
-                    final int score = data.path("score").asInt(0);
+                    final int score = data.optInt("score", 0);
 
-                    final int commentCount = data.path("num_comments").asInt(0);
-                    final String subredditName = data.path("subreddit").asText(subreddit);
+                    final int commentCount = data.optInt("num_comments", 0);
+                    final String subredditName = data.optString("subreddit", subreddit);
 
                     final ScrapedPost post = ScrapedPost.builder()
                             .externalId(externalId)

@@ -37,7 +37,7 @@ public class ScrapeController {
     public ResponseEntity<Map<String, Object>> triggerFullCycle() {
         final Map<Platform, Integer> scrapeResults = this.orchestrator.scrapeAll();
         final LocalDateTime since = LocalDateTime.now().minusHours(6);
-        final List<ScrapedPost> posts = this.postRepository.findAllScrapedAtAfterOrderByScoreDesc(since);
+        final List<ScrapedPost> posts = this.postRepository.findAllByScrapedAtAfterOrderByScoreDesc(since);
         TrendAnalysis analysis = null;
         if (!posts.isEmpty()) {
             analysis = this.analysisService.analyze(posts);
